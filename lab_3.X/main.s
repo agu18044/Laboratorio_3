@@ -79,7 +79,7 @@ config_tmr0:
     return
 
 reiniciar_tmr0:
-    movlw   50
+    movlw   60
     movwf   TMR0
     bcf	    T0IF   
     return
