@@ -30,6 +30,7 @@ PROCESSOR 16F887
     CONFIG BOR4V=BOR40V  // Reinicio abajo de 4V, (BOR21V=2.1V)
     
 PSECT udata_bank0  ;common memory
+    reg:    DS 1
     
 
 PSECT resVect, class=CODE, abs, delta=2

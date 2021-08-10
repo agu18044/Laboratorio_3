@@ -2479,6 +2479,7 @@ ENDM
     CONFIG BOR4V=BOR40V
 
 PSECT udata_bank0 ;common memory
+    reg: DS 1
 
 
 PSECT resVect, class=CODE, abs, delta=2
