@@ -2472,7 +2472,7 @@ ENDM
     CONFIG BOREN=OFF
     CONFIG IESO=OFF
     CONFIG FCMEN=OFF
-    CONFIG LVP=OFF
+    CONFIG LVP=ON
 
 ;configuration word 2
     CONFIG WRT=OFF
@@ -2529,8 +2529,10 @@ loop:
     btfsc PORTB, 1
     call dec_portc
 
-    btfsc ((INTCON) and 07Fh), 2
+    btfss ((INTCON) and 07Fh), 2
+    goto $-1
     call reiniciar_tmr0
+    incf PORTA
 
     goto loop
 
@@ -2558,11 +2560,10 @@ reiniciar_tmr0:
     movlw 60
     movwf TMR0
     bcf ((INTCON) and 07Fh), 2
-    incf PORTA
     return
 
 inc_portc:
-    btfsc PORTB, 0
+    btfss PORTB, 0
     goto $-1
     incf reg
     movf reg, W
@@ -2571,7 +2572,7 @@ inc_portc:
     return
 
 dec_portc:
-    btfsc PORTB, 1
+    btfss PORTB, 1
     goto $-1
     decfsz reg
     movf reg, W

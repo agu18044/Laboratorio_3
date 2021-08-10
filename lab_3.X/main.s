@@ -23,7 +23,7 @@ PROCESSOR 16F887
     CONFIG BOREN=OFF // Sin reinicio cuando el voltaje de alimentacion baja de 4V
     CONFIG IESO=OFF  // Reinicio sin cambio de reloj de interno a externo
     CONFIG FCMEN=OFF // Cambio de reloj externo a interno en caso de fallo
-    CONFIG LVP=ON    // Programacion en bajo voltaje permitida
+    CONFIG LVP=OFF    // Programacion en bajo voltaje permitida
     
 ;configuration word 2
     CONFIG WRT=OFF   // Proteccion de autoescritura por el programa desactivada
@@ -80,10 +80,8 @@ loop:
     btfsc   PORTB, 1  
     call    dec_portc
     
-    btfss   T0IF
-    goto    $-1
+    btfsc   T0IF
     call    reiniciar_tmr0
-    incf    PORTA
     
     goto    loop
 
@@ -110,26 +108,27 @@ config_tmr0:
 reiniciar_tmr0:
     movlw   60
     movwf   TMR0
-    bcf	    T0IF   
+    bcf	    T0IF  
+    incf    PORTA
     return
 
 inc_portc:
- btfss	PORTB, 0
- goto	$-1
- incf	reg
- movf	reg, W
- call	tabla
- movwf	PORTC
- return
+    btfsc	PORTB, 0
+    goto	$-1
+    incf	reg
+    movf	reg, W
+    call	tabla
+    movwf	PORTC
+    return
  
 dec_portc:
- btfss	PORTB, 1
- goto	$-1
- decfsz	reg
- movf	reg, W
- call	tabla
- movwf	PORTC
- return
+    btfsc	PORTB, 1
+    goto	$-1
+    decfsz	reg
+    movf	reg, W
+    call	tabla
+    movwf	PORTC
+    return
  
 config_io:
     ; Configuracion de los puertos
