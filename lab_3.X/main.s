@@ -30,8 +30,7 @@ PROCESSOR 16F887
     CONFIG BOR4V=BOR40V  // Reinicio abajo de 4V, (BOR21V=2.1V)
     
 PSECT udata_bank0  ;common memory
-    cont_small: DS 1 ;1 byte
-    cont_big:   DS 1
+    
 
 PSECT resVect, class=CODE, abs, delta=2
 ;-----------vector reset--------------;
@@ -47,63 +46,63 @@ ORG 100h    ; posicion para le codigo
 
 main:
     call    config_io
+    call    config_reloj
+    call    config_tmr0
+    banksel PORTA
 
 loop:
-    
-    ;boton para incrementar y decrementar el puerto A
-    btfsc   PORTA, 0  
-    call    inc_portb
-    call    delay_small
-    
-    btfsc   PORTA, 1
-    call    dec_portb
-    call    delay_small
-    
-    ;boton para incrementar y decrementar el puerto C
-    btfsc   PORTA, 2
-    call    inc_portc
-    call    delay_small
-    
-    btfsc   PORTA, 3
-    call    dec_portc
-    call    delay_small
-    
-    btfsc   PORTA, 4
-    call    suma
-    call    delay_small
-    
-    ;comprueba si hay un bit de carry
-    btfsc   PORTD, 4
-    bsf	    PORTE, 0
-    btfss   PORTD,4
-    bcf	    PORTE, 0
+    btfss   T0IF
+    goto    $-1
+    call    reiniciar_tmr0
+    incf    PORTA
     
     goto    loop
 
+ ;-----------sub rutinas--------------;    
+config_reloj:
+    banksel OSCCON
+    bsf	    IRCF2
+    bcf	    IRCF1
+    bsf	    IRCF0	; 2 Mhz
+    bsf	    SCS
+    return
+    
+config_tmr0:
+    banksel TRISA
+    bcf	    T0CS	;reloj interno
+    bcf	    PSA		;prescaler
+    bsf	    PS2
+    bsf	    PS1
+    bsf	    PS0		;  PS = 111 = 1:256
+    banksel PORTA
+    call    reiniciar_tmr0
+    return
+
+reiniciar_tmr0:
+    movlw   50
+    movwf   TMR0
+    bcf	    T0IF   
+    return
+    
 config_io:
     ; Configuracion de los puertos
     banksel ANSEL	; Se selecciona bank 3
     clrf    ANSEL	; Definir puertos digitales
     clrf    ANSELH
     
-    bsf	    STATUS, 5  ; banco 01
-    bcf	    STATUS, 6
-    bsf     TRISA, 0    ; se establecen como inputs para los pushbuttons
-    bsf     TRISA, 1
-    bsf     TRISA, 2
-    bsf     TRISA, 3
-    bsf     TRISA, 4
-    clrf    TRISB	;outputs de los pushbuttons
-    clrf    TRISC
-    clrf    TRISD
-    clrf    TRISE
+    banksel TRISA	; Banco 01
+    clrf    TRISA
+    clrf    TRISC	
+    bsf	    TRISB, 0
+    bsf	    TRISB, 1
   
-    bcf	    STATUS, 5  ; banco 00
-    bcf	    STATUS, 6
+    banksel PORTA	; Banco 00
     clrf    PORTB
     clrf    PORTA
     clrf    PORTC
     clrf    PORTD
-    clrf    PORTE
+    
     return
 
+
+end
