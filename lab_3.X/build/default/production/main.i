@@ -2480,7 +2480,7 @@ ENDM
 
 PSECT udata_bank0 ;common memory
     reg: DS 2
-
+    cont: DS 2
 
 PSECT resVect, class=CODE, abs, delta=2
 ;-----------vector reset--------------;
@@ -2532,6 +2532,10 @@ loop:
     btfsc ((INTCON) and 07Fh), 2
     call reiniciar_tmr0
 
+    btfsc cont, 0
+    goto loop
+    call inc_portd
+
     goto loop
 
  ;-----------sub rutinas--------------;
@@ -2559,6 +2563,7 @@ reiniciar_tmr0:
     movwf TMR0
     bcf ((INTCON) and 07Fh), 2
     incf PORTA
+    decf cont
     return
 
 inc_portc:
@@ -2579,6 +2584,12 @@ dec_portc:
     movwf PORTC
     return
 
+inc_portd:
+    incf PORTD
+    movlw 10
+    movwf cont
+    return
+
 config_io:
     ; Configuracion de los puertos
     banksel ANSEL ; Se selecciona bank 3
@@ -2590,13 +2601,15 @@ config_io:
     clrf TRISC
     bsf TRISB, 0
     bsf TRISB, 1
+    clrf TRISD
 
     banksel PORTA ; Banco 00
     clrf PORTB
     clrf PORTA
     clrf PORTC
     clrf PORTD
-
+    movlw 10
+    movwf cont
     return
 
 end
