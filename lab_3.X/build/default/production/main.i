@@ -2532,8 +2532,9 @@ loop:
     btfsc ((INTCON) and 07Fh), 2
     call reiniciar_tmr0
 
-    btfsc cont, 0
-    goto loop
+    movlw 10
+    subwf cont, W
+    btfsc STATUS, 0
     call inc_portd
 
     goto loop
@@ -2563,7 +2564,7 @@ reiniciar_tmr0:
     movwf TMR0
     bcf ((INTCON) and 07Fh), 2
     incf PORTA
-    decf cont
+    incf cont
     return
 
 inc_portc:
@@ -2586,7 +2587,7 @@ dec_portc:
 
 inc_portd:
     incf PORTD
-    movlw 10
+    movlw 0
     movwf cont
     return
 
@@ -2608,7 +2609,8 @@ config_io:
     clrf PORTA
     clrf PORTC
     clrf PORTD
-    movlw 10
+
+    movlw 0
     movwf cont
     return
 
