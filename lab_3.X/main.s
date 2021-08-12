@@ -85,13 +85,12 @@ loop:
     
     movlw    10
     subwf   cont, W
-    btfsc   STATUS, 0
+    btfsc   STATUS, 2
     call    inc_portd
   
-   
-    movf    PORTD, 0
+    movf    PORTD, W
     subwf   reg, W
-    btfsc   STATUS, 0
+    btfsc   STATUS, 2
     call    alarma
  
     goto    loop
@@ -146,22 +145,22 @@ inc_portd:
     incf    PORTD
     btfsc   PORTD, 4
     clrf    PORTD
-    bcf	    PORTE, 0
+    bcf	    PORTE, 1
     movlw   0
     movwf   cont
     return
-
-alarma:
-   bsf	    PORTE, 0
-   clrf	    PORTD
-   return
-   
+    
 /*alarma:
     movf    PORTD, W
     subwf   reg, W
-    btfsc   STATUS, 0
-    bsf	    PORTE, 0
+    btfsc   STATUS, 2
+    bsf	    PORTE, 1
     return*/
+ 
+alarma:
+    bsf	    PORTE, 1
+    clrf    PORTD
+    return
     
 config_io:
     ; Configuracion de los puertos
