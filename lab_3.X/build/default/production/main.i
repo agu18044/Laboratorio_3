@@ -2537,6 +2537,12 @@ loop:
     btfsc STATUS, 0
     call inc_portd
 
+
+    movf PORTD, 0
+    subwf reg, W
+    btfsc STATUS, 0
+    call alarma
+
     goto loop
 
  ;-----------sub rutinas--------------;
@@ -2587,10 +2593,18 @@ dec_portc:
 
 inc_portd:
     incf PORTD
+    btfsc PORTD, 4
+    clrf PORTD
+    bcf PORTE, 0
     movlw 0
     movwf cont
     return
 
+alarma:
+   bsf PORTE, 0
+   clrf PORTD
+   return
+# 166 "main.s"
 config_io:
     ; Configuracion de los puertos
     banksel ANSEL ; Se selecciona bank 3
@@ -2603,12 +2617,14 @@ config_io:
     bsf TRISB, 0
     bsf TRISB, 1
     clrf TRISD
+    clrf TRISE
 
     banksel PORTA ; Banco 00
     clrf PORTB
     clrf PORTA
     clrf PORTC
     clrf PORTD
+    clrf PORTE
 
     movlw 0
     movwf cont
